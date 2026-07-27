@@ -33,7 +33,7 @@ n'importe quel client MCP.
 ## Installation
 
 ```bash
-cd ~/brain-mcp
+cd ~/BRAIN-MCP
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
 ```
@@ -42,13 +42,13 @@ python3 -m venv .venv
 
 ```bash
 # via le script installé par pyproject.toml
-~/brain-mcp/.venv/bin/brain-mcp
+~/BRAIN-MCP/.venv/bin/brain-mcp
 
 # ou directement
-~/brain-mcp/.venv/bin/python -m brain_mcp.server
+~/BRAIN-MCP/.venv/bin/python -m brain_mcp.server
 
 # avec un chemin de cerveau custom
-BRAIN_PATH=~/autre-cerveau ~/brain-mcp/.venv/bin/brain-mcp
+BRAIN_PATH=~/autre-cerveau ~/BRAIN-MCP/.venv/bin/brain-mcp
 ```
 
 Le serveur parle stdio — il ne fait rien d'intéressant lancé seul dans un terminal
@@ -57,13 +57,13 @@ Le serveur parle stdio — il ne fait rien d'intéressant lancé seul dans un te
 Pour explorer les outils interactivement, utilise le MCP Inspector :
 
 ```bash
-npx @modelcontextprotocol/inspector ~/brain-mcp/.venv/bin/brain-mcp
+npx @modelcontextprotocol/inspector ~/BRAIN-MCP/.venv/bin/brain-mcp
 ```
 
 ## Tests
 
 ```bash
-cd ~/brain-mcp
+cd ~/BRAIN-MCP
 .venv/bin/python -m pytest -v
 ```
 
@@ -83,7 +83,7 @@ cd ~/brain-mcp
 
 ```bash
 claude mcp add brain -s user -e BRAIN_PATH="$HOME/CLAUDE-SHARED/brain" \
-  -- "$HOME/brain-mcp/.venv/bin/brain-mcp"
+  -- "$HOME/BRAIN-MCP/.venv/bin/brain-mcp"
 ```
 
 - `-s user` : dispo dans toutes tes sessions Claude Code (pas juste le projet courant).
@@ -102,7 +102,7 @@ Gmail) :
 {
   "mcpServers": {
     "brain": {
-      "command": "/Users/imran/brain-mcp/.venv/bin/brain-mcp",
+      "command": "/Users/imran/BRAIN-MCP/.venv/bin/brain-mcp",
       "env": {
         "BRAIN_PATH": "/Users/imran/CLAUDE-SHARED/brain"
       }
@@ -120,7 +120,7 @@ l'extension Chrome avant d'y toucher.
 ## Structure
 
 ```
-brain-mcp/
+BRAIN-MCP/
 ├── pyproject.toml
 ├── README.md
 ├── src/brain_mcp/
