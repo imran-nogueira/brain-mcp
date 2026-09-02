@@ -79,8 +79,8 @@ class GetProjectInput(BaseModel):
 class ListProjectsInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
-    monde: Optional[Literal["epitech", "perso"]] = Field(
-        default=None, description="Filtre par monde : 'epitech' (école/stage) ou 'perso'."
+    monde: Optional[Literal["epitech", "perso", "business"]] = Field(
+        default=None, description="Filtre par monde : 'epitech' (école/stage), 'perso' ou 'business'."
     )
     tier: Optional[Literal["vitrine", "solide", "fondation"]] = Field(
         default=None, description="Filtre par valeur portfolio."
@@ -103,7 +103,7 @@ class ListSkillsInput(BaseModel):
     confidence: Optional[Literal["inféré", "à-confirmer", "validé"]] = Field(
         default=None, description="Filtre par niveau de confiance de la donnée."
     )
-    monde: Optional[Literal["epitech", "perso"]] = Field(
+    monde: Optional[Literal["epitech", "perso", "business"]] = Field(
         default=None, description="Filtre par monde où la compétence est prouvée."
     )
 
@@ -215,7 +215,7 @@ def list_projects(params: ListProjectsInput) -> list[dict]:
     """Liste les projets, filtrable par monde, valeur portfolio et contexte.
 
     Args:
-        params (ListProjectsInput): monde ("epitech"|"perso"), tier
+        params (ListProjectsInput): monde ("epitech"|"perso"|"business"), tier
             ("vitrine"|"solide"|"fondation"), contexte (slug exact) — tous
             optionnels et combinables (ET logique).
 

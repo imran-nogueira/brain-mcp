@@ -260,15 +260,17 @@ class Brain:
             m = self.projet_monde(e.slug)
             n_projets_par_monde[m] = n_projets_par_monde.get(m, 0) + 1
 
-        n_skills_par_monde: dict[str, int] = {"epitech": 0, "perso": 0, "epitech+perso": 0, "?": 0}
+        # Clé dérivée dynamiquement (mondes déjà triés par skill_mondes()) plutôt que
+        # des combinaisons codées en dur ("epitech+perso") — reste correct quel que
+        # soit le nombre de mondes actifs, sans clé à ajouter à la main pour chaque
+        # nouvelle combinaison (cf. specs/personal-os-v2/14-BRAIN-MIGRATION-
+        # COMPATIBILITY.md § BRAIN-MCP : l'ancienne clé "epitech+perso" en dur
+        # mal-étiquetait toute skill multi-mondes, y compris epitech+business).
+        n_skills_par_monde: dict[str, int] = {}
         for e in self.competences.values():
             mondes = self.skill_mondes(e.slug)
-            if len(mondes) >= 2:
-                n_skills_par_monde["epitech+perso"] += 1
-            elif len(mondes) == 1:
-                n_skills_par_monde[mondes[0]] = n_skills_par_monde.get(mondes[0], 0) + 1
-            else:
-                n_skills_par_monde["?"] += 1
+            cle = "+".join(mondes) if mondes else "?"
+            n_skills_par_monde[cle] = n_skills_par_monde.get(cle, 0) + 1
 
         projets_vitrine = sorted(
             e.get("nom", e.slug)
