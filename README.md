@@ -1,6 +1,4 @@
-# brain-mcp
-
-> A read-only [MCP](https://modelcontextprotocol.io) server that exposes a personal knowledge base — projects, skills and contexts stored as Markdown files — to any Claude client.
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png"><img alt="brain-mcp — A read-only MCP server giving Claude direct access to a personal Markdown knowledge base." src="assets/banner-light.png"></picture>
 
 I keep a structured record of my projects and skills as plain Markdown files with YAML frontmatter. `brain-mcp` lets Claude (Claude Code, Claude Desktop, or any MCP client) query that record directly: search it, read a project or a skill, list and filter, get a summary.
 
