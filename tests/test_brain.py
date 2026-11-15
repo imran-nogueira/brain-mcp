@@ -89,10 +89,19 @@ def test_brain_overview_projets_vitrine(tmp_brain: Brain):
     assert ov["projets_vitrine"] == ["Projet Alpha"]
 
 
-def test_brain_overview_competences_solide_plus(tmp_brain: Brain):
+def test_brain_overview_competences_les_plus_prouvees(tmp_brain: Brain):
     ov = tmp_brain.brain_overview()
-    # skill-x est solide + validé -> incluse ; skill-y est notions + à-confirmer -> exclue
-    assert ov["competences_solide_plus"] == ["skill-x"]
+    # skill-x est validé -> incluse ; skill-y est à-confirmer -> exclue (pas de niveau depuis le 15/11)
+    assert ov["competences_les_plus_prouvees"] == ["skill-x"]
+    assert "competences_solide_plus" not in ov
+
+
+def test_skill_sans_niveau(tmp_brain: Brain):
+    s = tmp_brain.get_skill("skill-x")
+    assert s["source"] == "validé-imran" and s["prouve_par"] == ["proj-a", "proj-b"]
+    assert not any(k.startswith("niveau") for k in s)
+    rows = tmp_brain.list_skills()
+    assert {r["slug"]: r["nb_projets"] for r in rows} == {"skill-x": 2, "skill-y": 0}
 
 
 # ---------------------------------------------------------------------------
@@ -204,8 +213,7 @@ SKILL_Z_EPITECH_BUSINESS = """\
 type: skill
 nom: skill-z
 categorie: data-ml
-niveau_connaissance: intermédiaire
-niveau_source: machine-scan
+source: machine-scan
 confidence: à-confirmer
 fraicheur: récent
 prouve_par: [proj-a, proj-c]
@@ -220,8 +228,7 @@ SKILL_W_TROIS_MONDES = """\
 type: skill
 nom: skill-w
 categorie: qualite
-niveau_connaissance: solide
-niveau_source: validé-imran
+source: validé-imran
 confidence: validé
 fraicheur: récent
 prouve_par: [proj-a, proj-b, proj-c]

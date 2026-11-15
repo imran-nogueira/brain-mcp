@@ -56,8 +56,7 @@ SKILL_X = """\
 type: skill
 nom: skill-x
 categorie: data-ml
-niveau_connaissance: solide
-niveau_source: validé-imran
+source: validé-imran
 confidence: validé
 fraicheur: récent
 prouve_par: [proj-a, proj-b]
@@ -72,8 +71,7 @@ SKILL_Y = """\
 type: skill
 nom: skill-y
 categorie: devops
-niveau_connaissance: notions
-niveau_source: machine-scan
+source: machine-scan
 confidence: à-confirmer
 fraicheur: inconnue
 prouve_par: []

@@ -16,8 +16,6 @@ from .parser import Entity, load_entities
 
 DEFAULT_BRAIN_PATH = Path.home() / "CLAUDE-SHARED" / "brain"
 
-NIVEAUX_ORDRE = ["notions", "intermédiaire", "solide", "avancé"]
-
 
 class EntityNotFoundError(Exception):
     """Levée quand une entité (skill/projet) n'est pas trouvée par nom/slug."""
@@ -132,8 +130,8 @@ class Brain:
         elif type_ == "skill":
             base.update(
                 categorie=e.get("categorie"),
-                niveau_connaissance=e.get("niveau_connaissance"),
                 confidence=e.get("confidence"),
+                nb_projets=len(e.get_list("prouve_par")),
                 monde=self.skill_mondes(e.slug),
             )
         else:  # contexte
@@ -141,14 +139,16 @@ class Brain:
         return base
 
     def get_skill(self, nom: str) -> dict:
-        """niveau_connaissance, confidence, catégorie, prouve_par, relie_a, monde(s) dérivé(s)."""
+        """confidence, source, catégorie, prouve_par, relie_a, monde(s) dérivé(s).
+
+        Pas de niveau (décision du 15/11/2026) : une compétence est prouvée par ses projets.
+        """
         e = self._resolve(self.competences, nom)
         return {
             "slug": e.slug,
             "nom": e.get("nom", e.slug),
             "categorie": e.get("categorie"),
-            "niveau_connaissance": e.get("niveau_connaissance"),
-            "niveau_source": e.get("niveau_source"),
+            "source": e.get("source"),
             "confidence": e.get("confidence"),
             "fraicheur": e.get("fraicheur"),
             "prouve_par": e.get_list("prouve_par"),
@@ -204,7 +204,6 @@ class Brain:
     def list_skills(
         self,
         categorie: str | None = None,
-        niveau: str | None = None,
         confidence: str | None = None,
         monde: str | None = None,
     ) -> list[dict]:
@@ -212,8 +211,6 @@ class Brain:
         out = []
         for e in self.competences.values():
             if categorie and e.get("categorie") != categorie:
-                continue
-            if niveau and e.get("niveau_connaissance") != niveau:
                 continue
             if confidence and e.get("confidence") != confidence:
                 continue
@@ -225,8 +222,8 @@ class Brain:
                     "slug": e.slug,
                     "nom": e.get("nom", e.slug),
                     "categorie": e.get("categorie"),
-                    "niveau_connaissance": e.get("niveau_connaissance"),
                     "confidence": e.get("confidence"),
+                    "nb_projets": len(e.get_list("prouve_par")),
                     "monde": mondes,
                 }
             )
@@ -277,12 +274,11 @@ class Brain:
             for e in self.projets.values()
             if e.get("portfolio_tier") == "vitrine"
         )
-        skills_solides = sorted(
-            e.get("nom", e.slug)
-            for e in self.competences.values()
-            if e.get("niveau_connaissance") in ("solide", "avancé")
-            and e.get("confidence") == "validé"
-        )
+        # Sans niveau, on met en avant les compétences validées les mieux prouvées
+        # (nombre de projets dans prouve_par), 10 au plus.
+        validees = [e for e in self.competences.values() if e.get("confidence") == "validé"]
+        validees.sort(key=lambda e: (-len(e.get_list("prouve_par")), e.get("nom", e.slug)))
+        skills_prouvees = [e.get("nom", e.slug) for e in validees[:10]]
 
         return {
             "total_projets": len(self.projets),
@@ -291,5 +287,5 @@ class Brain:
             "projets_par_monde": n_projets_par_monde,
             "competences_par_monde": n_skills_par_monde,
             "projets_vitrine": projets_vitrine,
-            "competences_solide_plus": skills_solides,
+            "competences_les_plus_prouvees": skills_prouvees,
         }

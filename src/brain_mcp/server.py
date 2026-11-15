@@ -97,9 +97,6 @@ class ListSkillsInput(BaseModel):
     categorie: Optional[str] = Field(
         default=None, description="Filtre par catégorie, ex. 'ia-llm', 'langage', 'devops'."
     )
-    niveau: Optional[Literal["notions", "intermédiaire", "solide", "avancé"]] = Field(
-        default=None, description="Filtre par niveau de connaissance."
-    )
     confidence: Optional[Literal["inféré", "à-confirmer", "validé"]] = Field(
         default=None, description="Filtre par niveau de confiance de la donnée."
     )
@@ -144,7 +141,7 @@ def search_brain(params: SearchBrainInput) -> list[dict]:
     Returns:
         list[dict]: une entrée par entité trouvée, avec des champs clés qui
         varient selon le type (projet : categorie/statut/portfolio_tier/angle/monde ;
-        skill : categorie/niveau_connaissance/confidence/monde ;
+        skill : categorie/confidence/nb_projets/monde ;
         contexte : monde/forme/statut). Liste vide si rien ne correspond.
 
     Examples:
@@ -165,8 +162,7 @@ def get_skill(params: GetSkillInput) -> dict:
         params (GetSkillInput): nom (str) — nom ou slug de la compétence.
 
     Returns:
-        dict: {slug, nom, categorie, niveau_connaissance, niveau_source,
-        confidence, fraicheur, prouve_par (list[str]), relie_a (list[str]),
+        dict: {slug, nom, categorie, source, confidence, fraicheur, prouve_par (list[str]), relie_a (list[str]),
         monde (list[str], dérivé des projets qui prouvent la compétence)}.
         {"error": "..."} si la compétence n'est pas trouvée (avec des
         candidats proches quand c'est possible).
@@ -235,21 +231,23 @@ def list_projects(params: ListProjectsInput) -> list[dict]:
     annotations={"title": "Lister les compétences", **_RO},
 )
 def list_skills(params: ListSkillsInput) -> list[dict]:
-    """Liste les compétences, filtrable par catégorie, niveau, confiance, monde.
+    """Liste les compétences, filtrable par catégorie, confiance, monde.
+
+    Une compétence n'a pas de niveau : elle est prouvée par ses projets (nb_projets).
 
     Args:
-        params (ListSkillsInput): categorie, niveau, confidence, monde — tous
+        params (ListSkillsInput): categorie, confidence, monde — tous
             optionnels et combinables (ET logique).
 
     Returns:
-        list[dict]: [{slug, nom, categorie, niveau_connaissance, confidence,
+        list[dict]: [{slug, nom, categorie, confidence, nb_projets (int),
         monde (list[str])}, ...], trié par catégorie puis nom.
 
     Examples:
-        - "Mes compétences IA/LLM solides ?" -> categorie="ia-llm", niveau="solide"
+        - "Mes compétences IA/LLM ?" -> categorie="ia-llm"
         - "Compétences encore à confirmer ?" -> confidence="à-confirmer"
     """
-    return _fresh().list_skills(params.categorie, params.niveau, params.confidence, params.monde)
+    return _fresh().list_skills(params.categorie, params.confidence, params.monde)
 
 
 @mcp.tool(
@@ -289,8 +287,8 @@ def brain_overview() -> dict:
         dict: {total_projets, total_competences, total_contextes,
         projets_par_monde (dict monde -> compte), competences_par_monde
         (dict monde -> compte), projets_vitrine (list[str] noms),
-        competences_solide_plus (list[str] noms, niveau solide/avancé +
-        confidence validé)}.
+        competences_les_plus_prouvees (list[str] noms, 10 au plus :
+        confidence validé, triées par nombre de projets qui les prouvent)}.
 
     Examples:
         - "Fais-moi un résumé de mon profil tech" -> aucun paramètre
