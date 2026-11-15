@@ -57,3 +57,18 @@ def test_parse_frontmatter_separe_bien_frontmatter_et_corps():
     assert fm["type"] == "projet"
     assert not corps.startswith("---")
     assert not corps.startswith("\n")
+
+
+def test_preuves_lues_sans_polluer_les_cles():
+    texte = (
+        "---\ntype: projet\nsource: validé-imran\npreuves:\n"
+        '  - {id: tests, fait: "Tests verts", valeur: "43", source: "pnpm test, 5 fichiers", mesure_le: 2026-11-14, public: oui}\n'
+        "  - ligne illisible\n"
+        "confidence: validé\n---\n\nCorps.\n"
+    )
+    fm, corps = parse_frontmatter(texte)
+    assert fm["source"] == "validé-imran", "un source: de preuve ne doit jamais écraser la provenance"
+    assert fm["confidence"] == "validé" and corps == "Corps."
+    assert fm["preuves"] == [{"id": "tests", "fait": "Tests verts", "valeur": "43",
+                              "source": "pnpm test, 5 fichiers", "mesure_le": "2026-11-14", "public": "oui"}]
+    assert not any(k.startswith("-") for k in fm)

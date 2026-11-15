@@ -113,7 +113,7 @@ confidence: validé
 Contexte perso de test.
 """
 
-VUE_CV = "# CV — vue de test\n\nContenu factice.\n"
+VUE_CONTEXTE = "# Contexte Claude — vue de test\n\nContenu factice.\n"
 
 
 @pytest.fixture
@@ -131,6 +131,6 @@ def tmp_brain(tmp_path: Path) -> Brain:
     (root / "competences" / "skill-y.md").write_text(SKILL_Y, encoding="utf-8")
     (root / "contextes" / "ctx-ecole.md").write_text(CTX_ECOLE, encoding="utf-8")
     (root / "contextes" / "ctx-perso.md").write_text(CTX_PERSO, encoding="utf-8")
-    (root / "vues" / "cv.md").write_text(VUE_CV, encoding="utf-8")
+    (root / "vues" / "contexte-claude.md").write_text(VUE_CONTEXTE, encoding="utf-8")
 
     return Brain(brain_path=root)

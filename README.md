@@ -12,11 +12,11 @@ I keep a structured record of my projects and skills as plain Markdown files wit
 | Tool | What it returns |
 |---|---|
 | `search_brain(query, kind?)` | Keyword search across projects, skills and contexts (name, category, stack, pitch, body). |
-| `get_project(name)` | A project: context, world, portfolio tier, pitch, stack, status, period, repository. |
+| `get_project(name)` | A project: context, world, portfolio tier, pitch, stack, status, period, repository, and its measured evidence (value, source command, date). |
 | `get_skill(name)` | A skill: confidence, source, category, the projects that prove it, related skills, derived world(s). Skills carry no level: the proving projects are the evidence. |
 | `list_projects(world?, tier?, context?)` | Filtered list of projects. |
 | `list_skills(category?, confidence?, world?)` | Filtered list of skills, each with its number of proving projects. |
-| `get_view(name)` | Raw Markdown of a generated view (`cv`, `competences`, `epitech`, `perso`). |
+| `get_view(name)` | Raw Markdown of the generated context view (`contexte`): who I am, in 30 lines. |
 | `brain_overview()` | Quick summary: counts per world, showcase projects, best-proven skills. |
 
 Every tool ships a detailed docstring (return schema and examples) that MCP clients display.

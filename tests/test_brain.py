@@ -131,12 +131,21 @@ def test_list_skills_filtre_par_confidence(tmp_brain: Brain):
 
 
 def test_get_view_lit_le_fichier(tmp_brain: Brain):
-    assert "CV — vue de test" in tmp_brain.get_view("cv")
+    assert "Contexte Claude — vue de test" in tmp_brain.get_view("contexte")
+
+
+def test_get_view_ancienne_vue_refusee(tmp_brain: Brain):
+    try:
+        tmp_brain.get_view("cv")
+        assert False, "les 4 anciennes vues sont retirées"
+    except ValueError:
+        pass
 
 
 def test_get_view_manquante_leve_filenotfound(tmp_brain: Brain):
+    (tmp_brain.root / "vues" / "contexte-claude.md").unlink()
     try:
-        tmp_brain.get_view("epitech")
+        tmp_brain.get_view("contexte")
         assert False, "aurait dû lever FileNotFoundError"
     except FileNotFoundError:
         pass

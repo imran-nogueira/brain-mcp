@@ -157,7 +157,7 @@ class Brain:
         }
 
     def get_project(self, nom: str) -> dict:
-        """contexte, monde, portfolio_tier, angle, stack, statut, période, repo."""
+        """contexte, monde, portfolio_tier, angle, stack, statut, période, repo, preuves."""
         e = self._resolve(self.projets, nom)
         return {
             "slug": e.slug,
@@ -172,6 +172,7 @@ class Brain:
             "angle": e.get("angle"),
             "stack": e.get_list("stack"),
             "repo": e.get("repo"),
+            "preuves": [p for p in e.get_list("preuves") if isinstance(p, dict)],
         }
 
     def list_projects(
@@ -231,13 +232,8 @@ class Brain:
         return out
 
     def get_view(self, name: str) -> str:
-        """Renvoie le markdown brut d'une vue générée : cv | competences | epitech | perso."""
-        mapping = {
-            "cv": self.root / "vues" / "cv.md",
-            "perso": self.root / "vues" / "perso-business.md",
-            "competences": self.root.parent / "glossary" / "competences.md",
-            "epitech": self.root.parent / "glossary" / "epitech.md",
-        }
+        """Renvoie le markdown brut de la vue générée : contexte (seule vue depuis le 15/11/2026)."""
+        mapping = {"contexte": self.root / "vues" / "contexte-claude.md"}
         path = mapping.get(name)
         if path is None:
             raise ValueError(
@@ -246,7 +242,7 @@ class Brain:
         if not path.is_file():
             raise FileNotFoundError(
                 f"Vue « {name} » absente ({path}). "
-                "Régénère les vues avec `brain/_generer_vues.py`."
+                "Régénère-la avec `brain/_generer_vues.py`."
             )
         return path.read_text(encoding="utf-8")
 

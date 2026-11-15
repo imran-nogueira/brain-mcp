@@ -108,8 +108,9 @@ class ListSkillsInput(BaseModel):
 class GetViewInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
-    name: Literal["cv", "competences", "epitech", "perso"] = Field(
-        ..., description="Vue générée à récupérer : cv, competences, epitech ou perso."
+    name: Literal["contexte"] = Field(
+        default="contexte",
+        description="Vue générée à récupérer : contexte (qui est Imran, 30 lignes au plus).",
     )
 
 
@@ -189,7 +190,8 @@ def get_project(params: GetProjectInput) -> dict:
 
     Returns:
         dict: {slug, nom, contexte, monde, categorie, role, statut, periode,
-        portfolio_tier, angle, stack (list[str]), repo}.
+        portfolio_tier, angle, stack (list[str]), repo, preuves (list[dict] :
+        id, fait, valeur, source, mesure_le, public — chiffres mesurés et datés)}.
         {"error": "..."} si le projet n'est pas trouvé (avec des candidats
         proches quand c'est possible).
 
@@ -258,17 +260,15 @@ def get_view(params: GetViewInput) -> str:
     """Renvoie le markdown brut d'une vue générée du cerveau.
 
     Args:
-        params (GetViewInput): name — "cv" (compétences validées), "competences"
-            (index unifié), "epitech" (projets monde epitech rangés par tier),
-            "perso" (projets monde perso rangés par tier).
+        params (GetViewInput): name — "contexte" (seule vue : contextes, projets
+            phares avec leurs preuves publiques, compétences les mieux prouvées).
 
     Returns:
         str: contenu markdown complet de la vue. Chaîne commençant par
         "Erreur :" si la vue est introuvable sur disque (pas encore générée).
 
     Examples:
-        - "Montre-moi mon CV compétences" -> name="cv"
-        - "Montre-moi la vue projets Epitech" -> name="epitech"
+        - "Qui est Imran, en bref ?" -> name="contexte"
     """
     try:
         return _fresh().get_view(params.name)

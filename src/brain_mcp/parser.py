@@ -13,6 +13,22 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n?(.*)$", re.S)
+# Preuves chiffrées (brain/preuves.py, source de la règle) : une ligne `  - {clé: valeur, …}` par preuve.
+PREUVE_RE = re.compile(r"^\s+-\s*\{(.*)\}\s*$")
+PAIRE_RE = re.compile(r'\s*([a-z_]+)\s*:\s*(?:"((?:[^"\\]|\\.)*)"|([^,]*?))\s*(?:,|$)')
+
+
+def _parse_preuve(contenu: str) -> dict[str, str] | None:
+    """Parse l'intérieur d'un `{...}` de preuve ; None si la ligne n'est pas lisible en entier."""
+    d, pos = {}, 0
+    while pos < len(contenu):
+        m = PAIRE_RE.match(contenu, pos)
+        if not m or m.end() == pos:
+            return None
+        quoted, nue = m.group(2), m.group(3)
+        d[m.group(1)] = quoted.replace('\\"', '"') if quoted is not None else nue.strip()
+        pos = m.end()
+    return d
 
 
 @dataclass
@@ -68,12 +84,24 @@ def parse_frontmatter(text: str) -> tuple[dict[str, str | list[str]], str]:
         return {}, text.strip()
 
     raw_fm, corps = m.group(1), m.group(2)
-    d: dict[str, str | list[str]] = {}
+    d: dict = {}
+    cle = None
     for line in raw_fm.splitlines():
+        if line.startswith((" ", "\t", "-")):
+            # Élément d'une liste multi-ligne : jamais une clé (un `source:` de preuve
+            # écraserait sinon la provenance de l'entité). Seule `preuves:` est lue.
+            pm = PREUVE_RE.match(line)
+            preuve = _parse_preuve(pm.group(1)) if pm else None
+            if preuve is not None and cle == "preuves":
+                if not isinstance(d.get("preuves"), list):
+                    d["preuves"] = []
+                d["preuves"].append(preuve)
+            continue
         if ":" not in line:
             continue
         k, v = line.split(":", 1)
-        d[k.strip()] = _parse_value(v)
+        cle = k.strip()
+        d[cle] = _parse_value(v)
     return d, corps.strip()
 
 
